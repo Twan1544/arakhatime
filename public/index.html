@@ -1,53 +1,141 @@
-﻿<!DOCTYPE html>
-<html lang="my">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArakhaTime - Live Updates</title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-    <header>
-        <nav>
-            <h1>ArakhaTime</h1>
-            <ul>
-                <li><a href="#township-status">Township Status</a></li>
-                <li><a href="#news">News</a></li>
-                <li><a href="#statistics">Statistics</a></li>
-            </ul>
-        </nav>
-    </header>
+<!-- Header & Nav sections တွေမှာ date ပြောင်းရန် -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <span><span class="live-dot"></span>LIVE · 2024-03-14 · 11:42 MMT</span>
+    <span>arakhatime.com · ရခိုင်ပြည်နယ် လွတ်လပ်သောသတင်းဌာန</span>
+  </div>
+</div>
 
-    <main>
-        <section id="township-status">
-            <h2>မြို့နယ်အခြေအနေများ</h2>
-            <div class="status-grid">
-                <!-- Township status cards here -->
-                <p>Loading...</p>
-            </div>
-        </section>
+<!-- Breaking News Ticker -->
+<div class="breaking-bar">
+  <div class="breaking-inner">
+    <div class="brk-label">⚡ BREAKING</div>
+    <div class="ticker-wrap">
+      <div class="ticker">
+        <span>မြောက်ဦး - အမ်းလမ်းပေါ် တိုက်ပွဲဖြစ်ပွား — နှစ်ဖက်ထိခိုက်မှုရှိ</span>
+        <span>·</span>
+        <span>စစ်တွေမြို့တွင် စားနပ်ရိက္ခာ ပြတ်လပ်မှု စတင်</span>
+        <span>·</span>
+        <span>ပုဏ္ဏားကျွန်းတွင် စစ်ဘေးရှောင် ၃၀၀ ကျော် ထပ်မံရောက်ရှိ</span>
+        <span>·</span>
+        <span>ကျောက်တော်မြို့နယ် အခြေအနေ တင်းမာ</span>
+        <!-- ထပ်ခါပြရန် -->
+        <span>·</span>
+        <span>မြောက်ဦး - အမ်းလမ်းပေါ် တိုက်ပွဲဖြစ်ပွား — နှစ်ဖက်ထိခိုက်မှုရှိ</span>
+        <span>·</span>
+        <span>စစ်တွေမြို့တွင် စားနပ်ရိက္ခာ ပြတ်လပ်မှု စတင်</span>
+        <span>·</span>
+        <span>ပုဏ္ဏားကျွန်းတွင် စစ်ဘေးရှောင် ၃၀၀ ကျော် ထပ်မံရောက်ရှိ</span>
+        <span>·</span>
+        <span>ကျောက်တော်မြို့နယ် အခြေအနေ တင်းမာ</span>
+      </div>
+    </div>
+  </div>
+</div>
 
-        <section id="news">
-            <h2>နောက်ဆုံးရသတင်းများ</h2>
-            <div class="news-grid">
-                <!-- News cards here -->
-                <p>Loading...</p>
-            </div>
-        </section>
+<!-- Stats Row -->
+<div class="stats-row">
+  <div class="stat-card sc-red">
+    <div class="stat-label">ယခုနှစ် သေဆုံးမှု</div>
+    <div class="stat-num">234</div>
+    <div class="stat-change">↑ +12 ယခုအပတ်</div>
+  </div>
+  <div class="stat-card sc-orange">
+    <div class="stat-label">ထိခိုက်ဒဏ်ရာရ</div>
+    <div class="stat-num">892</div>
+    <div class="stat-change">↑ +45 ယခုအပတ်</div>
+  </div>
+  <div class="stat-card sc-yellow">
+    <div class="stat-label">တိုက်ပွဲဖြစ်ရပ်</div>
+    <div class="stat-num">167</div>
+    <div class="stat-change">↑ +8 ယခုလ</div>
+  </div>
+  <div class="stat-card sc-blue">
+    <div class="stat-label">စစ်ဘေးရှောင်</div>
+    <div class="stat-num">89K</div>
+    <div class="stat-change">↑ +2,400 ယခုလ</div>
+  </div>
+  <div class="stat-card sc-green">
+    <div class="stat-label">ထိန်းချုပ်နယ်မြေ</div>
+    <div class="stat-num">11/17</div>
+    <div class="stat-change">မြို့နယ် ၁၁ ခု</div>
+  </div>
+</div>
 
-        <section id="statistics">
-            <h2>စာရင်းအင်းများ</h2>
-            <div class="stats-grid">
-                <!-- Statistics here -->
-                <p>Loading...</p>
-            </div>
-        </section>
-    </main>
+<!-- Featured News & News Grid -->
+<div class="home-layout">
+  <div>
+    <div class="art-card art-featured">
+      <div class="art-img">🗺</div>
+      <div class="art-body">
+        <div class="art-cat c-brk">⚡ သတင်းအထူး</div>
+        <div class="art-title">မြောက်ဦး-အမ်း ကားလမ်းပေါ်တွင် တိုက်ပွဲများ ပြင်းထန် — နှစ်ဖက်စလုံး ထိခိုက်မှုရှိ</div>
+        <div class="art-excerpt">ယနေ့နံနက်ပိုင်းက စတင်ဖြစ်ပွားခဲ့သည့် တိုက်ပွဲများကြောင့် လမ်းပိုင်းဆိုင်းငံ့ထားရပြီး ဒေသခံပြည်သူများ ဘေးလွတ်ရာသို့ ပြောင်းရွှေ့နေကြရသည်။</div>
+        <div class="art-meta"><span>2024-03-14 · 10:30</span><span>မြောက်ဦး</span><span>သတင်းထောက်</span></div>
+      </div>
+    </div>
 
-    <footer>
-        <p>&copy; 2024 ArakhaTime</p>
-    </footer>
+    <div class="art-grid">
+      <div class="art-small">
+        <div class="art-cat c-cas">💀 ထိခိုက်မှုမှတ်တမ်း</div>
+        <div class="art-title">စစ်တွေမြို့နယ်တွင် လက်နက်ကြီးကျရောက်ပေါက်ကွဲ - ၃ ဦး ဒဏ်ရာရ</div>
+        <div class="art-meta" style="margin-top:8px"><span>09:15 · Western News</span></div>
+      </div>
+      <div class="art-small">
+        <div class="art-cat c-idp">🏕 စစ်ဘေးရှောင်သတင်း</div>
+        <div class="art-title">ပုဏ္ဏားကျွန်းမှ စစ်ဘေးရှောင် ၃၀၀ ကျော် စစ်တွေသို့ ရောက်ရှိ</div>
+        <div class="art-meta" style="margin-top:8px"><span>08:45 · RFA</span></div>
+      </div>
+      <div class="art-small">
+        <div class="art-cat c-ark">🌿 ဒေသတွင်းအခြေအနေ</div>
+        <div class="art-title">ကျောက်တော်မြို့နယ်တွင် စားနပ်ရိက္ခာ ပြတ်လပ်မှု စတင်ဖြစ်ပေါ်</div>
+        <div class="art-meta" style="margin-top:8px"><span>08:20 · Local Source</span></div>
+      </div>
+      <div class="art-small">
+        <div class="art-cat c-glb">🌐 နိုင်ငံတကာ</div>
+        <div class="art-title">UN အထူးကိုယ်စားလှယ် ရခိုင်အရေး စိုးရိမ်ကြောင်း ထုတ်ပြန်</div>
+        <div class="art-meta" style="margin-top:8px"><span>07:00 · UN News</span></div>
+      </div>
+    </div>
+  </div>
 
-    <script src="/js/main.js"></script>
-</body>
-</html>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sw">
+      <div class="sw-hd"><span>မြို့နယ် အခြေအနေ</span><span style="color:var(--text3)">LIVE</span></div>
+      <div class="sw-bd">
+        <div class="tw-item"><span class="tw-name">မြောက်ဦး</span><span class="tw-status s-hot">🔴 အရေးပေါ်</span></div>
+        <div class="tw-item"><span class="tw-name">စစ်တွေ</span><span class="tw-status s-hot">🔴 အရေးပေါ်</span></div>
+        <div class="tw-item"><span class="tw-name">ကျောက်တော်</span><span class="tw-status s-act">🟠 တင်းမာ</span></div>
+        <div class="tw-item"><span class="tw-name">ပုဏ္ဏားကျွန်း</span><span class="tw-status s-act">🟠 တင်းမာ</span></div>
+        <div class="tw-item"><span class="tw-name">မင်းပြား</span><span class="tw-status s-wat">🟡 စောင့်ကြည့်</span></div>
+        <div class="tw-item"><span class="tw-name">အမ်း</span><span class="tw-status s-wat">🟡 စောင့်ကြည့်</span></div>
+        <div class="tw-item"><span class="tw-name">သံတွဲ</span><span class="tw-status s-clm">🟢 တည်ငြိမ်</span></div>
+        <div class="tw-item"><span class="tw-name">ငပလီ</span><span class="tw-status s-clm">🟢 တည်ငြိမ်</span></div>
+      </div>
+    </div>
+
+    <div class="sw">
+      <div class="sw-hd">ယနေ့ အကျဉ်းချုပ်</div>
+      <div class="sw-bd">
+        <div class="mini-stat"><span>ဖြစ်ရပ် စုစုပေါင်း</span><span class="mini-val">12</span></div>
+        <div class="mini-stat"><span>လက်နက်ကြီးကျရောက်</span><span class="mini-val" style="color:var(--red)">4</span></div>
+        <div class="mini-stat"><span>တိုက်ပွဲဖြစ်ပွား</span><span class="mini-val" style="color:var(--orange)">3</span></div>
+        <div class="mini-stat"><span>ထိခိုက်ဒဏ်ရာရ</span><span class="mini-val">8</span></div>
+        <div class="mini-stat"><span>အသက်ဆုံးရှုံး</span><span class="mini-val" style="color:var(--red)">2</span></div>
+      </div>
+    </div>
+
+    <div class="sw">
+      <div class="sw-hd">သတင်းအမျိုးအစား</div>
+      <div class="sw-bd">
+        <div class="tw-item" style="cursor:pointer"><span class="art-cat c-brk" style="margin:0">⚡ အရေးပေါ်</span><span class="stag">15</span></div>
+        <div class="tw-item" style="cursor:pointer"><span class="art-cat c-cas" style="margin:0">💀 ထိခိုက်မှု</span><span class="stag">42</span></div>
+        <div class="tw-item" style="cursor:pointer"><span class="art-cat c-idp" style="margin:0">🏕 စစ်ဘေးရှောင်</span><span class="stag">28</span></div>
+        <div class="tw-item" style="cursor:pointer"><span class="art-cat c-ark" style="margin:0">🌿 ဒေသတွင်း</span><span class="stag">35</span></div>
+        <div class="tw-item" style="cursor:pointer"><span class="art-cat c-glb" style="margin:0">🌐 နိုင်ငံတကာ</span><span class="stag">12</span></div>
+        <div class="tw-item" style="cursor:pointer"><span class="art-cat c-inv" style="margin:0">🔍 အထူးသတင်း</span><span class="stag">7</span></div>
+      </div>
+    </div>
+  </div>
+</div>
