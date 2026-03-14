@@ -1,53 +1,558 @@
-﻿<!DOCTYPE html>
-<html lang="my">
+<!DOCTYPE html>
+<html lang="my" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArakhaTime - Live Updates</title>
-    <link rel="stylesheet" href="/css/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arakha Time — အာရက္ခဒေသ သတင်း</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+:root {
+  --bg:#0a0c0f;--bg2:#111418;--bg3:#181c22;
+  --border:#1e2530;--border2:#252d38;
+  --text:#e8eaed;--text2:#9aa3b0;--text3:#5a6475;
+  --accent:#c8a96e;--accent2:#e8c87e;
+  --red:#e05555;--orange:#e07a35;--yellow:#d4b94a;
+  --green:#4caf7d;--blue:#4a9edd;--purple:#9b6dcc;
+}
+[data-theme="light"]{
+  --bg:#f5f3ee;--bg2:#fff;--bg3:#ede9e1;
+  --border:#d8d2c8;--border2:#c5bdb0;
+  --text:#1a1a1a;--text2:#4a4a4a;--text3:#888;
+  --accent:#8b6914;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Source Serif 4',Georgia,serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6;}
+
+/* TOPBAR */
+.topbar{background:var(--bg);border-bottom:1px solid var(--border);padding:6px 0;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);}
+.topbar-inner{max-width:1400px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;}
+.live-dot{display:inline-block;width:7px;height:7px;background:var(--red);border-radius:50%;margin-right:6px;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+/* HEADER */
+header{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;}
+.header-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:20px 0;}
+.logo-main{font-family:'Playfair Display',serif;font-size:38px;font-weight:900;color:var(--text);letter-spacing:-1px;line-height:1;}
+.logo-main span{color:var(--accent);}
+.logo-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:3px;text-transform:uppercase;margin-top:3px;}
+.theme-btn{background:var(--bg3);border:1px solid var(--border2);color:var(--text2);padding:8px 14px;border-radius:6px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;transition:all .2s;letter-spacing:1px;}
+.theme-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+/* NAV */
+nav{background:var(--bg2);border-bottom:2px solid var(--border);position:sticky;top:0;z-index:100;}
+.nav-inner{max-width:1400px;margin:0 auto;padding:0 24px;display:flex;overflow-x:auto;}
+.nav-item{padding:13px 16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .2s;letter-spacing:.5px;text-transform:uppercase;}
+.nav-item:hover{color:var(--text);}
+.nav-item.active{color:var(--accent);border-bottom-color:var(--accent);}
+.nav-item.brk{color:var(--red);}
+
+/* BREAKING TICKER */
+.breaking-bar{background:var(--red);padding:8px 0;overflow:hidden;}
+.breaking-inner{max-width:1400px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:16px;}
+.brk-label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:#fff;white-space:nowrap;letter-spacing:2px;}
+.ticker-wrap{overflow:hidden;flex:1;}
+.ticker{display:flex;animation:tick 35s linear infinite;gap:60px;}
+.ticker span{font-size:13px;color:rgba(255,255,255,.9);white-space:nowrap;}
+@keyframes tick{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+
+/* PAGES */
+.page{display:none;}.page.active{display:block;}
+
+/* STATS ROW */
+.stats-row{max-width:1400px;margin:0 auto;padding:24px 24px 0;display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:18px 20px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.sc-red::before{background:var(--red);}
+.sc-orange::before{background:var(--orange);}
+.sc-yellow::before{background:var(--yellow);}
+.sc-blue::before{background:var(--blue);}
+.sc-green::before{background:var(--green);}
+.stat-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
+.stat-num{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;line-height:1;margin-bottom:4px;}
+.sc-red .stat-num{color:var(--red);}
+.sc-orange .stat-num{color:var(--orange);}
+.sc-yellow .stat-num{color:var(--yellow);}
+.sc-blue .stat-num{color:var(--blue);}
+.sc-green .stat-num{color:var(--green);}
+.stat-change{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);}
+
+/* HOME LAYOUT */
+.home-layout{max-width:1400px;margin:0 auto;padding:24px;display:grid;grid-template-columns:1fr 320px;gap:24px;}
+
+/* ARTICLES */
+.art-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden;cursor:pointer;transition:border-color .2s;margin-bottom:16px;}
+.art-card:hover{border-color:var(--accent);}
+.art-featured{display:grid;grid-template-columns:1fr 260px;}
+.art-img{background:linear-gradient(135deg,#1a2030,#0d1520);display:flex;align-items:center;justify-content:center;font-size:50px;min-height:240px;}
+.art-body{padding:20px;}
+.art-cat{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;font-weight:600;}
+.c-brk{color:var(--red);}
+.c-cas{color:var(--orange);}
+.c-idp{color:var(--blue);}
+.c-ark{color:var(--green);}
+.c-glb{color:var(--purple);}
+.c-inv{color:var(--accent);}
+.art-title{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;line-height:1.3;margin-bottom:10px;color:var(--text);}
+.art-featured .art-title{font-size:24px;}
+.art-excerpt{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:12px;}
+.art-meta{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);display:flex;gap:14px;}
+.art-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+.art-small{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:16px;cursor:pointer;transition:border-color .2s;}
+.art-small:hover{border-color:var(--accent);}
+.art-small .art-title{font-size:14px;}
+
+/* SIDEBAR */
+.sidebar{display:flex;flex-direction:column;gap:16px;}
+.sw{background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.sw-hd{padding:13px 16px;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);display:flex;justify-content:space-between;}
+.sw-bd{padding:14px 16px;}
+.tw-item{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.tw-item:last-child{border-bottom:none;}
+.tw-name{color:var(--text2);}
+.tw-status{font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 8px;border-radius:3px;font-weight:600;}
+.s-hot{background:rgba(224,85,85,.15);color:var(--red);}
+.s-act{background:rgba(224,122,53,.15);color:var(--orange);}
+.s-wat{background:rgba(212,185,74,.15);color:var(--yellow);}
+.s-clm{background:rgba(76,175,125,.15);color:var(--green);}
+.mini-stat{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.mini-stat:last-child{border-bottom:none;}
+.mini-val{font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--accent);}
+
+/* MAP */
+.map-wrap{max-width:1400px;margin:0 auto;padding:24px;display:grid;grid-template-columns:1fr 300px;gap:20px;height:calc(100vh - 170px);}
+.map-box{background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden;position:relative;}
+#lmap{width:100%;height:100%;min-height:500px;}
+.map-legend{position:absolute;bottom:16px;left:16px;background:rgba(10,12,15,.93);border:1px solid var(--border2);border-radius:8px;padding:12px;z-index:1000;}
+.leg-item{display:flex;align-items:center;gap:8px;padding:3px 0;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text2);}
+.leg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.map-side{overflow-y:auto;display:flex;flex-direction:column;gap:14px;}
+.mfilters{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px;}
+.fl{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{padding:4px 10px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:10px;border:1px solid var(--border2);cursor:pointer;transition:all .2s;color:var(--text2);background:var(--bg3);}
+.chip.on{border-color:var(--accent);color:var(--accent);}
+.inc-list{background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.inc-hd{padding:10px 14px;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:1.5px;}
+.inc-item{padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;}
+.inc-item:last-child{border-bottom:none;}
+.inc-item:hover{background:var(--bg3);}
+.inc-type{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;margin-bottom:3px;}
+.inc-loc{font-size:13px;color:var(--text);margin-bottom:3px;font-weight:600;}
+.inc-time{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);}
+
+/* TRACKER */
+.tracker-wrap{max-width:1400px;margin:0 auto;padding:24px;}
+.pg-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bottom:4px;}
+.pg-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:1px;margin-bottom:20px;}
+.tfilters{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 18px;display:flex;gap:14px;align-items:flex-end;margin-bottom:18px;flex-wrap:wrap;}
+.fg{display:flex;flex-direction:column;gap:4px;}
+.fg label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;}
+.fg select,.fg input{background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:7px 10px;border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;}
+.fg select:focus,.fg input:focus{border-color:var(--accent);}
+.dtable{background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden;width:100%;}
+.dtable table{width:100%;border-collapse:collapse;}
+.dtable th{background:var(--bg3);padding:11px 14px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid var(--border);}
+.dtable td{padding:11px 14px;font-size:13px;border-bottom:1px solid var(--border);color:var(--text2);}
+.dtable tr:last-child td{border-bottom:none;}
+.dtable tr:hover td{background:var(--bg3);}
+.dc{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);}
+.badge{display:inline-block;padding:2px 8px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;}
+.b-air{background:rgba(224,85,85,.15);color:var(--red);}
+.b-gnd{background:rgba(224,122,53,.15);color:var(--orange);}
+.b-mne{background:rgba(212,185,74,.15);color:var(--yellow);}
+.b-arr{background:rgba(155,109,204,.15);color:var(--purple);}
+.b-idp{background:rgba(74,158,221,.15);color:var(--blue);}
+.stag{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);background:var(--bg3);padding:2px 6px;border-radius:3px;}
+
+/* ARCHIVES */
+.arch-wrap{max-width:1400px;margin:0 auto;padding:24px;}
+.arch-grid{display:grid;grid-template-columns:220px 1fr;gap:20px;margin-top:16px;}
+.arch-cal{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px;}
+.cal-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text2);}
+.cal-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;}
+.cal-btn:hover{color:var(--accent);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;}
+.cal-dh{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text3);padding:4px;letter-spacing:1px;}
+.cal-d{font-family:'JetBrains Mono',monospace;font-size:11px;padding:5px 3px;border-radius:4px;cursor:pointer;color:var(--text2);transition:all .15s;}
+.cal-d:hover{background:var(--bg3);}
+.cal-d.ev{color:var(--accent);font-weight:600;}
+.cal-d.sel{background:var(--accent);color:var(--bg);}
+.arch-results{display:flex;flex-direction:column;gap:10px;}
+.arch-item{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 18px;cursor:pointer;transition:border-color .2s;display:flex;gap:18px;align-items:flex-start;}
+.arch-item:hover{border-color:var(--accent);}
+.arch-date{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);white-space:nowrap;min-width:75px;padding-top:4px;}
+
+/* METHODOLOGY */
+.meth-wrap{max-width:860px;margin:0 auto;padding:40px 24px;}
+.meth-sec{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:26px 30px;margin-bottom:18px;}
+.meth-sec h3{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;margin-bottom:10px;color:var(--accent);}
+.meth-sec p{color:var(--text2);font-size:14px;line-height:1.8;margin-bottom:10px;}
+.src-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;}
+.src-card{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:12px;}
+.src-name{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);margin-bottom:3px;font-weight:600;}
+.src-desc{font-size:12px;color:var(--text3);}
+
+/* FOOTER */
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 24px;margin-top:60px;}
+.footer-inner{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;}
+.footer-desc{font-size:13px;color:var(--text3);line-height:1.7;margin-top:8px;}
+.footer-col h4{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;}
+.footer-col a{display:block;color:var(--text2);text-decoration:none;font-size:13px;padding:3px 0;transition:color .2s;}
+.footer-col a:hover{color:var(--accent);}
+.footer-btm{max-width:1400px;margin:24px auto 0;padding-top:18px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);}
+
+@media(max-width:900px){
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+  .home-layout,.map-wrap,.arch-grid{grid-template-columns:1fr;}
+  .art-featured{grid-template-columns:1fr;}
+  .footer-inner{grid-template-columns:1fr 1fr;}
+  .src-grid{grid-template-columns:1fr 1fr;}
+}
+</style>
 </head>
 <body>
-    <header>
-        <nav>
-            <h1>ArakhaTime</h1>
-            <ul>
-                <li><a href="#township-status">Township Status</a></li>
-                <li><a href="#news">News</a></li>
-                <li><a href="#statistics">Statistics</a></li>
-            </ul>
-        </nav>
-    </header>
 
-    <main>
-        <section id="township-status">
-            <h2>မြို့နယ်အခြေအနေများ</h2>
-            <div class="status-grid">
-                <!-- Township status cards here -->
-                <p>Loading...</p>
-            </div>
-        </section>
+<div class="topbar">
+  <div class="topbar-inner">
+    <span><span class="live-dot"></span>LIVE · 2026-03-14 · 11:42 MMT</span>
+    <span>arakhatime.com · အာရက္ခဒေသ လွတ်လပ်သောသတင်းဌာန</span>
+  </div>
+</div>
 
-        <section id="news">
-            <h2>နောက်ဆုံးရသတင်းများ</h2>
-            <div class="news-grid">
-                <!-- News cards here -->
-                <p>Loading...</p>
-            </div>
-        </section>
+<header>
+  <div class="header-inner">
+    <div>
+      <div class="logo-main">Arakha<span>Time</span></div>
+      <div class="logo-sub">အာရက္ခဒေသ သတင်း · Conflict Monitor</div>
+    </div>
+    <button class="theme-btn" onclick="toggleTheme()">☀ LIGHT / ◑ DARK</button>
+  </div>
+</header>
 
-        <section id="statistics">
-            <h2>စာရင်းအင်းများ</h2>
-            <div class="stats-grid">
-                <!-- Statistics here -->
-                <p>Loading...</p>
-            </div>
-        </section>
-    </main>
+<nav>
+  <div class="nav-inner">
+    <div class="nav-item brk active" onclick="goPage('home',this)">⚡ BREAKING</div>
+    <div class="nav-item" onclick="goPage('home',this)">HOME</div>
+    <div class="nav-item" onclick="goPage('map',this)">🗺 LIVE MAP</div>
+    <div class="nav-item" onclick="goPage('tracker',this)">📊 CASUALTY TRACKER</div>
+    <div class="nav-item" onclick="goPage('archives',this)">🗂 ARCHIVES</div>
+    <div class="nav-item" onclick="goPage('methodology',this)">DATA & METHODOLOGY</div>
+  </div>
+</nav>
 
-    <footer>
-        <p>&copy; 2024 ArakhaTime</p>
-    </footer>
+<div class="breaking-bar">
+  <div class="breaking-inner">
+    <div class="brk-label">⚡ BREAKING</div>
+    <div class="ticker-wrap">
+      <div class="ticker">
+        <span>မောင်တော မြို့နယ်တွင် လေကြောင်းထိုးစစ် — ၃ ဦးသေ၊ ၇ ဦးဒဏ်ရာ</span>
+        <span>·</span>
+        <span>စစ်တွေ-ကျောက်တော့ ကားလမ်းပိတ်ဆို့ — ကုန်စည်စီးဆင်းမှုရပ်</span>
+        <span>·</span>
+        <span>ရသေ့တောင် IDP ၅၀၀ ထပ်မံထွက်ပြေး</span>
+        <span>·</span>
+        <span>AA တပ်ဖွဲ့ ကျောက်ဖြူဆိပ်ကမ်း ထိန်းချုပ်မှုတိုးချဲ့</span>
+        <span>·</span>
+        <span>မောင်တော မြို့နယ်တွင် လေကြောင်းထိုးစစ် — ၃ ဦးသေ၊ ၇ ဦးဒဏ်ရာ</span>
+        <span>·</span>
+        <span>စစ်တွေ-ကျောက်တော့ ကားလမ်းပိတ်ဆို့ — ကုန်စည်စီးဆင်းမှုရပ်</span>
+        <span>·</span>
+        <span>ရသေ့တောင် IDP ၅၀၀ ထပ်မံထွက်ပြေး</span>
+        <span>·</span>
+        <span>AA တပ်ဖွဲ့ ကျောက်ဖြူဆိပ်ကမ်း ထိန်းချုပ်မှုတိုးချဲ့</span>
+      </div>
+    </div>
+  </div>
+</div>
 
-    <script src="/js/main.js"></script>
+<!-- ══ HOME ══ -->
+<div id="page-home" class="page active">
+  <div class="stats-row">
+    <div class="stat-card sc-red"><div class="stat-label">ဒီနှစ် သေဆုံးမှု</div><div class="stat-num">1,247</div><div class="stat-change">↑ +34 ဒီအပတ်</div></div>
+    <div class="stat-card sc-orange"><div class="stat-label">ထိခိုက်ဒဏ်ရာ</div><div class="stat-num">3,891</div><div class="stat-change">↑ +112 ဒီအပတ်</div></div>
+    <div class="stat-card sc-yellow"><div class="stat-label">တိုက်ပွဲဖြစ်ရပ်</div><div class="stat-num">589</div><div class="stat-change">↑ +23 ဒီလ</div></div>
+    <div class="stat-card sc-blue"><div class="stat-label">IDP စစ်ဘေးရှောင်</div><div class="stat-num">312K</div><div class="stat-change">↑ +8,200 ဒီလ</div></div>
+    <div class="stat-card sc-green"><div class="stat-label">AA ထိန်းချုပ်</div><div class="stat-num">14/17</div><div class="stat-change">မြို့နယ် ၁၄ ခု</div></div>
+  </div>
+
+  <div class="home-layout">
+    <div>
+      <div class="art-card art-featured">
+        <div class="art-img">🗺</div>
+        <div class="art-body">
+          <div class="art-cat c-brk">⚡ BREAKING NEWS</div>
+          <div class="art-title">မောင်တော မြောက်ပိုင်းတွင် တိုက်ပွဲပြင်းထန် — အရပ်သား ၁၂ ဦး ကြောက်ဝင်ထွက်ပြေး</div>
+          <div class="art-excerpt">SAC တပ်ဖွဲ့နှင့် AA တပ်ဖွဲ့တို့အကြား တိုက်ပွဲများ ဆက်ဖြစ်ပွားနေ၍ ဒေသဆိုင်ရာ အရပ်သား ၁၂ ဦးခန့် နေရပ်မှ ထွက်ပြေးနေရသည်ဟု သတင်းရင်းမြစ်များ ပြောသည်။</div>
+          <div class="art-meta"><span>2026-03-14 · 09:45</span><span>မောင်တော</span><span>Narinjara News</span></div>
+        </div>
+      </div>
+
+      <div class="art-grid">
+        <div class="art-small">
+          <div class="art-cat c-cas">💀 CASUALTIES</div>
+          <div class="art-title">ကျောက်တော့ ဆေးရုံသို့ ပြည်သူ ၄၇ ဦး တက်ရောက်ကုသ</div>
+          <div class="art-meta" style="margin-top:8px"><span>08:20 · Khit Thit Media</span></div>
+        </div>
+        <div class="art-small">
+          <div class="art-cat c-idp">🏕 IDP NEWS</div>
+          <div class="art-title">ရသေ့တောင် IDP စခန်းတွင် ဆေးဝါး ပြတ်လပ်မှု ဆိုးရွား</div>
+          <div class="art-meta" style="margin-top:8px"><span>07:55 · RFA Burmese</span></div>
+        </div>
+        <div class="art-small">
+          <div class="art-cat c-ark">🌿 ARAKHA SITUATION</div>
+          <div class="art-title">စစ်တွေ ဆန်တစ်ပြည် ကျပ် ၅,၀၀၀ ကျော် — ကုန်လမ်းပိတ်ဆို့ကြောင့်</div>
+          <div class="art-meta" style="margin-top:8px"><span>07:10 · Local Source</span></div>
+        </div>
+        <div class="art-small">
+          <div class="art-cat c-glb">🌐 GLOBAL CONTEXT</div>
+          <div class="art-title">UNHCR — IDP ၃ သိန်းကျော် ကူညီရေး ရန်ပုံငွေ မလုံလောက်</div>
+          <div class="art-meta" style="margin-top:8px"><span>03:00 · UNHCR</span></div>
+        </div>
+      </div>
+
+      <div class="art-card">
+        <div class="art-body">
+          <div class="art-cat c-inv">🔍 INVESTIGATION</div>
+          <div class="art-title">မောင်တော စစ်ဆင်ရေးကာလ ၆ လ — ထိခိုက်မှု မှတ်တမ်းအပြည့်</div>
+          <div class="art-excerpt">သတင်းရင်းမြစ် ၁၂ ခု၊ ကင်မရာဖိုင် ၈၇ ခုနှင့် လူတွေ့မေးမြန်းမှု ၄၃ ကြိမ်ကို အခြေခံ၍ မှတ်တမ်းတင်ထားသည်။ ဒေသခံ ၁,၂၄၇ ဦး ထိခိုက်ဒဏ်ရာရ၊ ၃၄၅ ဦး သေဆုံး...</div>
+          <div class="art-meta"><span>2026-03-10 · Arakha Time Investigation Team</span><span>📖 25 MIN READ</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="sw">
+        <div class="sw-hd"><span>မြို့နယ် အဆင့်သတ်မှတ်</span><span style="color:var(--text3);font-size:10px">LIVE</span></div>
+        <div class="sw-bd">
+          <div class="tw-item"><span class="tw-name">မောင်တော</span><span class="tw-status s-hot">🔴 HOT</span></div>
+          <div class="tw-item"><span class="tw-name">ကျောက်တော့</span><span class="tw-status s-hot">🔴 HOT</span></div>
+          <div class="tw-item"><span class="tw-name">ဘူးသီးတောင်</span><span class="tw-status s-act">🟠 ACTIVE</span></div>
+          <div class="tw-item"><span class="tw-name">ရသေ့တောင်</span><span class="tw-status s-act">🟠 ACTIVE</span></div>
+          <div class="tw-item"><span class="tw-name">စစ်တွေ</span><span class="tw-status s-wat">🟡 WATCH</span></div>
+          <div class="tw-item"><span class="tw-name">ကျောက်ဖြူ</span><span class="tw-status s-wat">🟡 WATCH</span></div>
+          <div class="tw-item"><span class="tw-name">သံတွဲ</span><span class="tw-status s-clm">🟢 CALM</span></div>
+          <div class="tw-item"><span class="tw-name">တောင်ကုတ်</span><span class="tw-status s-clm">🟢 CALM</span></div>
+        </div>
+      </div>
+
+      <div class="sw">
+        <div class="sw-hd">ယနေ့ အကျဉ်းချုပ်</div>
+        <div class="sw-bd">
+          <div class="mini-stat"><span>ဖြစ်ရပ် (ယနေ့)</span><span class="mini-val">7</span></div>
+          <div class="mini-stat"><span>လေကြောင်းထိုး</span><span class="mini-val" style="color:var(--red)">3</span></div>
+          <div class="mini-stat"><span>မြေပြင်တိုက်ပွဲ</span><span class="mini-val" style="color:var(--orange)">4</span></div>
+          <div class="mini-stat"><span>ထိခိုက် (ယနေ့)</span><span class="mini-val">14</span></div>
+          <div class="mini-stat"><span>သေဆုံး (ယနေ့)</span><span class="mini-val" style="color:var(--red)">3</span></div>
+        </div>
+      </div>
+
+      <div class="sw">
+        <div class="sw-hd">ကဏ္ဍများ</div>
+        <div class="sw-bd">
+          <div class="tw-item" style="cursor:pointer"><span class="art-cat c-brk" style="margin:0">⚡ Breaking News</span><span class="stag">24</span></div>
+          <div class="tw-item" style="cursor:pointer"><span class="art-cat c-cas" style="margin:0">💀 Casualties</span><span class="stag">156</span></div>
+          <div class="tw-item" style="cursor:pointer"><span class="art-cat c-idp" style="margin:0">🏕 IDP News</span><span class="stag">89</span></div>
+          <div class="tw-item" style="cursor:pointer"><span class="art-cat c-ark" style="margin:0">🌿 Arakha Situation</span><span class="stag">67</span></div>
+          <div class="tw-item" style="cursor:pointer"><span class="art-cat c-glb" style="margin:0">🌐 Global Context</span><span class="stag">43</span></div>
+          <div class="tw-item" style="cursor:pointer"><span class="art-cat c-inv" style="margin:0">🔍 Investigation</span><span class="stag">12</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MAP ══ -->
+<div id="page-map" class="page">
+  <div class="map-wrap">
+    <div class="map-box">
+      <div id="lmap"></div>
+      <div class="map-legend">
+        <div class="leg-item"><div class="leg-dot" style="background:var(--red)"></div>လေကြောင်းထိုး</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--orange)"></div>မြေပြင်တိုက်ပွဲ</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--yellow)"></div>မိုင်း/ပစ်ခတ်</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--blue)"></div>IDP စခန်း</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--purple)"></div>ဖမ်းဆီးမှု</div>
+      </div>
+    </div>
+    <div class="map-side">
+      <div class="mfilters">
+        <div class="fl">Filter by Type</div>
+        <div class="chips">
+          <div class="chip on" onclick="chipSel(this)">All</div>
+          <div class="chip" onclick="chipSel(this)">🔴 လေကြောင်း</div>
+          <div class="chip" onclick="chipSel(this)">🟠 မြေပြင်</div>
+          <div class="chip" onclick="chipSel(this)">💣 မိုင်း</div>
+          <div class="chip" onclick="chipSel(this)">🏕 IDP</div>
+        </div>
+      </div>
+      <div class="inc-list">
+        <div class="inc-hd">RECENT INCIDENTS</div>
+        <div class="inc-item"><div class="inc-type c-brk">⚡ AIRSTRIKE</div><div class="inc-loc">မောင်တော မြောက်ပိုင်း</div><div class="inc-time">09:45 · 3 casualties</div></div>
+        <div class="inc-item"><div class="inc-type c-cas">⚔ GROUND BATTLE</div><div class="inc-loc">ကျောက်တော့ အနောက်ဘက်</div><div class="inc-time">08:30 · Ongoing</div></div>
+        <div class="inc-item"><div class="inc-type" style="color:var(--yellow)">💣 MINE BLAST</div><div class="inc-loc">ဘူးသီးတောင် ကားလမ်း</div><div class="inc-time">07:15 · 1 casualty</div></div>
+        <div class="inc-item"><div class="inc-type c-idp">🏕 IDP MOVEMENT</div><div class="inc-loc">ရသေ့တောင် → စစ်တွေ</div><div class="inc-time">06:00 · 500 displaced</div></div>
+        <div class="inc-item"><div class="inc-type c-brk">⚡ AIRSTRIKE</div><div class="inc-loc">ပြည်ကြီးမဏ္ဍိုင်</div><div class="inc-time">03:20 · 2 casualties</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TRACKER ══ -->
+<div id="page-tracker" class="page">
+  <div class="tracker-wrap">
+    <div class="pg-title">📊 Casualty Tracker</div>
+    <div class="pg-sub">AGGREGATED & VERIFIED DATA · MULTIPLE SOURCES</div>
+    <div class="tfilters">
+      <div class="fg"><label>မြို့နယ်</label><select><option>အားလုံး</option><option>မောင်တော</option><option>ကျောက်တော့</option><option>ဘူးသီးတောင်</option><option>ရသေ့တောင်</option><option>စစ်တွေ</option></select></div>
+      <div class="fg"><label>ဖြစ်ရပ်အမျိုးအစား</label><select><option>အားလုံး</option><option>လေကြောင်းထိုး</option><option>မြေပြင်တိုက်ပွဲ</option><option>မိုင်းထိမှန်</option><option>ဖမ်းဆီးမှု</option></select></div>
+      <div class="fg"><label>ကာလ</label><select><option>မတ် ၂၀၂၆</option><option>ဖေဖော်ဝါရီ ၂၀၂၆</option><option>ဇန်နဝါရီ ၂၀၂၆</option></select></div>
+      <div class="fg"><label>အရင်းအမြစ်</label><select><option>အားလုံး</option><option>Narinjara</option><option>RFA Burmese</option><option>Khit Thit Media</option></select></div>
+      <div class="fg"><label>ရှာဖွေ</label><input type="text" placeholder="မြို့နယ်၊ နေရာ..."></div>
+    </div>
+    <div class="dtable">
+      <table>
+        <thead><tr><th>နေ့စွဲ</th><th>မြို့နယ်</th><th>နေရာ</th><th>ဖြစ်ရပ်</th><th>သေဆုံး</th><th>ဒဏ်ရာ</th><th>အရင်းအမြစ်</th><th>အတည်ပြုမှု</th></tr></thead>
+        <tbody>
+          <tr><td class="dc">2026-03-14</td><td>မောင်တော</td><td>မြောက်ပိုင်းဒေသ</td><td><span class="badge b-air">AIRSTRIKE</span></td><td style="color:var(--red);font-weight:600">3</td><td>7</td><td><span class="stag">Narinjara</span></td><td style="color:var(--green)">✓ Verified</td></tr>
+          <tr><td class="dc">2026-03-14</td><td>ကျောက်တော့</td><td>အနောက်ဘက်နယ်</td><td><span class="badge b-gnd">GROUND</span></td><td style="color:var(--red);font-weight:600">1</td><td>4</td><td><span class="stag">Khit Thit</span></td><td style="color:var(--green)">✓ Verified</td></tr>
+          <tr><td class="dc">2026-03-14</td><td>ဘူးသီးတောင်</td><td>ကားလမ်း</td><td><span class="badge b-mne">MINE</span></td><td style="color:var(--red);font-weight:600">1</td><td>2</td><td><span class="stag">Local</span></td><td style="color:var(--yellow)">⟳ Pending</td></tr>
+          <tr><td class="dc">2026-03-13</td><td>မောင်တော</td><td>မောင်တောမြို့</td><td><span class="badge b-air">AIRSTRIKE</span></td><td style="color:var(--red);font-weight:600">5</td><td>12</td><td><span class="stag">RFA</span></td><td style="color:var(--green)">✓ Verified</td></tr>
+          <tr><td class="dc">2026-03-13</td><td>ရသေ့တောင်</td><td>ရွာနယ်မြေ</td><td><span class="badge b-idp">IDP</span></td><td>—</td><td>—</td><td><span class="stag">UNHCR</span></td><td style="color:var(--green)">✓ Verified</td></tr>
+          <tr><td class="dc">2026-03-12</td><td>ကျောက်ဖြူ</td><td>ဆိပ်ကမ်းဝန်းကျင်</td><td><span class="badge b-gnd">GROUND</span></td><td style="color:var(--red);font-weight:600">2</td><td>6</td><td><span class="stag">Narinjara</span></td><td style="color:var(--green)">✓ Verified</td></tr>
+          <tr><td class="dc">2026-03-12</td><td>စစ်တွေ</td><td>မြို့နယ်အတွင်း</td><td><span class="badge b-arr">ARREST</span></td><td>—</td><td>—</td><td><span class="stag">Local</span></td><td style="color:var(--yellow)">⟳ Pending</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ARCHIVES ══ -->
+<div id="page-archives" class="page">
+  <div class="arch-wrap">
+    <div class="pg-title">🗂 Archives — မှတ်တမ်းတိုက်</div>
+    <div class="pg-sub">HISTORICAL RECORDS · SEARCH BY DATE</div>
+    <div class="arch-grid">
+      <div class="arch-cal">
+        <div class="cal-hd"><button class="cal-btn">‹</button><span>မတ် ၂၀၂၆</span><button class="cal-btn">›</button></div>
+        <div class="cal-grid">
+          <div class="cal-dh">တ</div><div class="cal-dh">အ</div><div class="cal-dh">ဗ</div><div class="cal-dh">ကြ</div><div class="cal-dh">သ</div><div class="cal-dh">စ</div><div class="cal-dh">တ</div>
+          <div class="cal-d"></div><div class="cal-d"></div><div class="cal-d"></div><div class="cal-d"></div><div class="cal-d"></div><div class="cal-d ev">1</div><div class="cal-d ev">2</div>
+          <div class="cal-d ev">3</div><div class="cal-d ev">4</div><div class="cal-d">5</div><div class="cal-d ev">6</div><div class="cal-d ev">7</div><div class="cal-d ev">8</div><div class="cal-d">9</div>
+          <div class="cal-d ev">10</div><div class="cal-d ev">11</div><div class="cal-d ev">12</div><div class="cal-d ev">13</div><div class="cal-d sel">14</div><div class="cal-d">15</div><div class="cal-d">16</div>
+          <div class="cal-d">17</div><div class="cal-d">18</div><div class="cal-d">19</div><div class="cal-d">20</div><div class="cal-d">21</div><div class="cal-d">22</div><div class="cal-d">23</div>
+          <div class="cal-d">24</div><div class="cal-d">25</div><div class="cal-d">26</div><div class="cal-d">27</div><div class="cal-d">28</div><div class="cal-d">29</div><div class="cal-d">30</div>
+          <div class="cal-d">31</div>
+        </div>
+      </div>
+      <div class="arch-results">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);letter-spacing:1px">2026-03-14 — ဖြစ်ရပ် ၇ ခု</div>
+        <div class="arch-item">
+          <div class="arch-date">09:45<br>မောင်တော</div>
+          <div><div class="art-cat c-brk" style="margin-bottom:4px">⚡ AIRSTRIKE</div><div style="font-size:14px;font-weight:600;margin-bottom:4px">မောင်တော မြောက်ပိုင်း — ၃ ဦးသေ၊ ၇ ဦးဒဏ်ရာ</div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3)">Narinjara · Verified</div></div>
+        </div>
+        <div class="arch-item">
+          <div class="arch-date">08:30<br>ကျောက်တော့</div>
+          <div><div class="art-cat c-cas" style="margin-bottom:4px">⚔ GROUND BATTLE</div><div style="font-size:14px;font-weight:600;margin-bottom:4px">ကျောက်တော့ အနောက်နယ် — ဆက်ဖြစ်ပွားဆဲ</div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3)">Khit Thit Media · Verified</div></div>
+        </div>
+        <div class="arch-item">
+          <div class="arch-date">06:00<br>ရသေ့တောင်</div>
+          <div><div class="art-cat c-idp" style="margin-bottom:4px">🏕 IDP MOVEMENT</div><div style="font-size:14px;font-weight:600;margin-bottom:4px">ရသေ့တောင်မှ IDP ၅၀၀ ထပ်မံ ရွှေ့ပြောင်း</div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3)">RFA Burmese · Verified</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ METHODOLOGY ══ -->
+<div id="page-methodology" class="page">
+  <div class="meth-wrap">
+    <div class="pg-title">Data Source & Methodology</div>
+    <div class="pg-sub">HOW WE COLLECT, VERIFY AND PUBLISH</div>
+    <div class="meth-sec">
+      <h3>ဒေတာ စုစည်းနည်း</h3>
+      <p>မြန်မာဘာသာ သတင်းဌာနများ၊ နိုင်ငံတကာ မှတ်တမ်းတင်ဖွဲ့များ၊ ဒေသဆိုင်ရာ သတင်းရင်းမြစ်များနှင့် ကုလသမဂ္ဂ အဖွဲ့အစည်းများ ထုတ်ပြန်ချက်များမှ နေ့စဉ် စုစည်းသည်။</p>
+      <p>သတင်းရင်းမြစ် ၂ ခုမှ အတည်ပြုချက်ရမှသာ "Verified" အဖြစ် မှတ်သားသည်။</p>
+      <div class="src-grid">
+        <div class="src-card"><div class="src-name">Narinjara News</div><div class="src-desc">အာရက္ခဒေသ ဒေသဆိုင်ရာ သတင်းဌာန</div></div>
+        <div class="src-card"><div class="src-name">Khit Thit Media</div><div class="src-desc">မြန်မာ လွတ်လပ်သောမီဒီယာ</div></div>
+        <div class="src-card"><div class="src-name">RFA Burmese</div><div class="src-desc">Radio Free Asia မြန်မာဌာန</div></div>
+        <div class="src-card"><div class="src-name">UNHCR / OCHA</div><div class="src-desc">ကုလသမဂ္ဂ ဒုက္ခသည်ဆိုင်ရာ</div></div>
+        <div class="src-card"><div class="src-name">ACLED</div><div class="src-desc">တိုက်ပွဲဒေတာ မှတ်တမ်းတင်ဖွဲ့</div></div>
+        <div class="src-card"><div class="src-name">Local Sources</div><div class="src-desc">ဒေသဆိုင်ရာ သတင်းရင်းမြစ်</div></div>
+      </div>
+    </div>
+    <div class="meth-sec">
+      <h3>AI စစ်ဆေးမှု စနစ်</h3>
+      <p>သတင်းတစ်ပုဒ် ရောက်ရှိလာသောအခါ Claude AI က ကနဦးစစ်ဆေးမှုများ ပြုလုပ်သည် — ဒေတာထုတ်ယူ၊ ဘာသာပြန်၊ ဆန့်ကျင်ချက်ရှာဖွေ။ Editor လူကိုယ်တိုင် နောက်ဆုံးအတည်ပြုမှသာ ထုတ်ဝေသည်။</p>
+    </div>
+    <div class="meth-sec">
+      <h3>ထုတ်ဝေရေး စံနှုန်းများ</h3>
+      <p>ဒေသဆိုင်ရာ သတင်းရင်းမြစ်များ၏ ကိုယ်ရေးကိုယ်တာ လုံခြုံမှုကို အထူးဂရုပြုသည်။ ထုတ်ဖော်ဖြစ်နိုင်မည့် အချက်အလတ်များကို မတင်ဆောင်ပေ။</p>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="logo-main" style="font-family:'Playfair Display',serif;font-size:24px;font-weight:900">Arakha<span style="color:var(--accent)">Time</span></div>
+      <div class="footer-desc">အာရက္ခဒေသဆိုင်ရာ လွတ်လပ်သောသတင်းနှင့် ဒေတာမှတ်တမ်းဌာန။ တိုက်ပွဲ၊ ထိခိုက်မှု၊ စစ်ဘေးရှောင်နှင့် ကမ္ဘာ့အခြေအနေများ မှတ်တမ်းတင်သည်။</div>
+    </div>
+    <div class="footer-col"><h4>Pages</h4><a href="#">Home</a><a href="#">Live Map</a><a href="#">Casualty Tracker</a><a href="#">Archives</a></div>
+    <div class="footer-col"><h4>Categories</h4><a href="#">Breaking News</a><a href="#">Casualties</a><a href="#">IDP News</a><a href="#">Global Context</a></div>
+    <div class="footer-col"><h4>About</h4><a href="#">Methodology</a><a href="#">Sources</a><a href="#">Contact</a><a href="#">Submit a Tip</a></div>
+  </div>
+  <div class="footer-btm"><span>© 2026 Arakha Time · arakhatime.com</span><span>All incidents verified before publication</span></div>
+</footer>
+
+<script>
+function goPage(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+  if (name === 'map') initMap();
+}
+
+function toggleTheme() {
+  const h = document.documentElement;
+  h.dataset.theme = h.dataset.theme === 'dark' ? 'light' : 'dark';
+}
+
+function chipSel(el) {
+  el.closest('.chips').querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+}
+
+let mapDone = false;
+function initMap() {
+  if (mapDone) return;
+  mapDone = true;
+  const map = L.map('lmap').setView([20.15, 93.0], 8);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap © CARTO', maxZoom: 18
+  }).addTo(map);
+  const pts = [
+    [20.82, 92.36, '#e05555', '⚡ မောင်တော — လေကြောင်းထိုး', '၃ ဦးသေ၊ ၇ ဦးဒဏ်ရာ · 2026-03-14'],
+    [20.62, 92.93, '#e07a35', '⚔ ကျောက်တော့ — မြေပြင်တိုက်ပွဲ', '၁ ဦးသေ · 2026-03-14'],
+    [20.89, 92.48, '#d4b94a', '💣 ဘူးသီးတောင် — မိုင်းထိမှန်', '၁ ဦးဒဏ်ရာ · 2026-03-14'],
+    [20.38, 92.88, '#4a9edd', '🏕 ရသေ့တောင် — IDP ရွှေ့ပြောင်း', 'IDP ၅၀၀ · 2026-03-14'],
+    [20.14, 92.89, '#e05555', '⚡ စစ်တွေ — ပြည်ကြီးမဏ္ဍိုင်', '၂ ဦးသေ · 2026-03-14'],
+    [19.68, 93.53, '#e07a35', '⚔ ကျောက်ဖြူ — ဆိပ်ကမ်း', '၂ ဦးသေ · 2026-03-12'],
+  ];
+  pts.forEach(([lat, lng, color, label, detail]) => {
+    L.circleMarker([lat, lng], {
+      radius: 11, fillColor: color, color: 'rgba(255,255,255,0.25)',
+      weight: 2, opacity: 1, fillOpacity: 0.85
+    }).addTo(map).bindPopup(
+      `<div style="font-family:monospace;font-size:12px;background:#111418;color:#e8eaed;border:1px solid #1e2530;border-radius:6px;padding:10px;min-width:200px"><b style="color:#c8a96e">${label}</b><br><span style="color:#9aa3b0;font-size:11px">${detail}</span></div>`
+    );
+  });
+}
+</script>
 </body>
 </html>
