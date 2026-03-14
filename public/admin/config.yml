@@ -1,0 +1,48 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "images/uploads"
+public_folder: "/images/uploads"
+
+collections:
+  - name: "breaking_news"
+    label: "🔥 Breaking News"
+    folder: "_posts/news"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - { label: "ခေါင်းစဉ်", name: "title", widget: "string" }
+      - { label: "ရက်စွဲ", name: "date", widget: "datetime" }
+      - { label: "အမျိုးအစား", name: "category", widget: "select", options: ["Breaking", "War", "Politics", "Society"] }
+      - { label: "ဓာတ်ပုံ", name: "image", widget: "image", required: false }
+      - { label: "အကျဉ်း", name: "summary", widget: "text" }
+      - { label: "အကြောင်းအရာ", name: "body", widget: "markdown" }
+      - { label: "စာရေးသူ", name: "author", widget: "string", default: "ArakhaTime" }
+      - { label: "Status", name: "status", widget: "select", options: ["HOT", "ACTIVE", "WATCH", "CALM"], default: "ACTIVE" }
+
+  - name: "casualties"
+    label: "💀 သေဆုံး/ဒဏ်ရာ"
+    folder: "_posts/casualties"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - { label: "ခေါင်းစဉ်", name: "title", widget: "string" }
+      - { label: "ရက်စွဲ", name: "date", widget: "datetime" }
+      - { label: "မြို့နယ်", name: "township", widget: "string" }
+      - { label: "သေဆုံးသူ", name: "deaths", widget: "number", default: 0 }
+      - { label: "ဒဏ်ရာရသူ", name: "injured", widget: "number", default: 0 }
+      - { label: "အကြောင်းအရာ", name: "body", widget: "markdown" }
+
+  - name: "idp"
+    label: "🏕️ IDP စခန်းများ"
+    folder: "_posts/idp"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "စခန်းအမည်", name: "title", widget: "string" }
+      - { label: "မြို့နယ်", name: "township", widget: "string" }
+      - { label: "လူဦးရေ", name: "population", widget: "number" }
+      - { label: "Update ရက်စွဲ", name: "date", widget: "datetime" }
+      - { label: "အခြေအနေ", name: "status", widget: "select", options: ["CALM", "WATCH", "ACTIVE", "HOT"] }
+      - { label: "မှတ်ချက်", name: "body", widget: "markdown", required: false }
