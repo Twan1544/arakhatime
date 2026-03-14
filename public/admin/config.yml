@@ -1,0 +1,171 @@
+backend:
+  name: git-gateway
+  branch: main
+
+# Optional: Enable local development mode
+# Uncomment the line below to test CMS locally
+# local_backend: true
+
+# Media files will be stored in the repo under images/uploads
+media_folder: "images/uploads"
+public_folder: "/images/uploads"
+
+# Logo and site configuration
+site_url: https://twan1544.github.io/arakhatime
+display_url: https://twan1544.github.io/arakhatime
+logo_url: https://twan1544.github.io/arakhatime/admin/logo.png
+
+# Collections define the content types
+collections:
+  # ========================================
+  # Breaking News Collection
+  # ========================================
+  - name: "breaking_news"
+    label: "🔥 Breaking News"
+    label_singular: "Breaking News Article"
+    folder: "_posts/news"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    extension: "md"
+    format: "yaml-frontmatter"
+    fields:
+      - { label: "ခေါင်းစဉ် (Title)", name: "title", widget: "string", required: true }
+      - { label: "ရက်စွဲ (Date)", name: "date", widget: "datetime", format: "YYYY-MM-DD HH:mm:ss", required: true }
+      - label: "အမျိုးအစား (Category)"
+        name: "category"
+        widget: "select"
+        required: true
+        options:
+          - { label: "⚡ Breaking", value: "breaking" }
+          - { label: "⚔️ War/Conflict", value: "war" }
+          - { label: "🏛️ Politics", value: "politics" }
+          - { label: "👥 Society", value: "society" }
+          - { label: "🌍 Global", value: "global" }
+      - label: "Status"
+        name: "status"
+        widget: "select"
+        default: "ACTIVE"
+        options:
+          - { label: "🔴 HOT", value: "HOT" }
+          - { label: "🟠 ACTIVE", value: "ACTIVE" }
+          - { label: "🟡 WATCH", value: "WATCH" }
+          - { label: "🟢 CALM", value: "CALM" }
+      - { label: "ဓာတ်ပုံ (Featured Image)", name: "image", widget: "image", required: false, allow_multiple: false }
+      - { label: "အကျဉ်း (Summary)", name: "summary", widget: "text", required: true }
+      - { label: "အကြောင်းအရာ (Content)", name: "body", widget: "markdown", required: true }
+      - { label: "စာရေးသူ (Author)", name: "author", widget: "string", default: "ArakhaTime Editorial" }
+      - label: "သတင်းရင်းမြစ် (Sources)"
+        name: "sources"
+        widget: "list"
+        required: false
+        fields:
+          - { label: "ရင်းမြစ်အမည်", name: "name", widget: "string" }
+          - { label: "URL", name: "url", widget: "string", required: false }
+      - { label: "Tags", name: "tags", widget: "list", required: false, allow_add: true }
+      - { label: "အတည်ပြုပြီး (Verified)", name: "verified", widget: "boolean", default: false }
+
+  # ========================================
+  # Casualties Collection
+  # ========================================
+  - name: "casualties"
+    label: "💀 သေဆုံး/ဒဏ်ရာ"
+    label_singular: "Casualty Report"
+    folder: "_posts/casualties"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    extension: "md"
+    format: "yaml-frontmatter"
+    fields:
+      - { label: "ခေါင်းစဉ် (Incident Title)", name: "title", widget: "string", required: true }
+      - { label: "ရက်စွဲ (Date)", name: "date", widget: "datetime", format: "YYYY-MM-DD HH:mm:ss", required: true }
+      - label: "ဖြစ်ရပ်အမျိုးအစား (Incident Type)"
+        name: "incident_type"
+        widget: "select"
+        required: true
+        options:
+          - { label: "⚡ Airstrike", value: "airstrike" }
+          - { label: "⚔️ Ground Battle", value: "ground_battle" }
+          - { label: "💣 Shelling/Artillery", value: "shelling" }
+          - { label: "🎯 Sniper", value: "sniper" }
+          - { label: "💥 Landmine/IED", value: "landmine" }
+          - { label: "🔥 Arson", value: "arson" }
+          - { label: "⚠️ Other", value: "other" }
+      - { label: "တိုင်းဒေသကြီး/ပြည်နယ် (State/Region)", name: "state", widget: "string", default: "Rakhine State" }
+      - { label: "မြို့နယ် (Township)", name: "township", widget: "string", required: true }
+      - { label: "ရွာ/ရပ်ကွက် (Village/Ward)", name: "location", widget: "string", required: false }
+      - { label: "Latitude", name: "latitude", widget: "number", value_type: "float", required: false }
+      - { label: "Longitude", name: "longitude", widget: "number", value_type: "float", required: false }
+      - { label: "သေဆုံးသူအရေအတွက် (Deaths)", name: "deaths", widget: "number", value_type: "int", default: 0, min: 0 }
+      - { label: "ဒဏ်ရာရသူအရေအတွက် (Injured)", name: "injured", widget: "number", value_type: "int", default: 0, min: 0 }
+      - label: "သေဆုံးသူများ အသေးစိတ် (Victim Details)"
+        name: "victims"
+        widget: "list"
+        required: false
+        fields:
+          - { label: "အမည်", name: "name", widget: "string", required: false }
+          - { label: "အသက်", name: "age", widget: "number", value_type: "int", required: false }
+          - { label: "ကျား/မ", name: "gender", widget: "select", options: ["Male", "Female", "Unknown"], required: false }
+          - { label: "အခြေအနေ", name: "status", widget: "select", options: ["Dead", "Injured"], required: false }
+      - { label: "အသေးစိတ်ဖော်ပြချက် (Detailed Description)", name: "body", widget: "markdown", required: true }
+      - label: "သတင်းရင်းမြစ် (Sources)"
+        name: "sources"
+        widget: "list"
+        required: false
+        fields:
+          - { label: "ရင်းမြစ်အမည်", name: "name", widget: "string" }
+          - { label: "URL", name: "url", widget: "string", required: false }
+      - { label: "အတည်ပြုပြီး (Verified)", name: "verified", widget: "boolean", default: false }
+
+  # ========================================
+  # IDP Camps Collection
+  # ========================================
+  - name: "idp_camps"
+    label: "🏕️ IDP စခန်းများ"
+    label_singular: "IDP Camp"
+    folder: "_posts/idp"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    format: "yaml-frontmatter"
+    fields:
+      - { label: "စခန်းအမည် (Camp Name)", name: "title", widget: "string", required: true }
+      - { label: "မြို့နယ် (Township)", name: "township", widget: "string", required: true }
+      - { label: "တည်နေရာအသေးစိတ် (Detailed Location)", name: "location", widget: "string", required: false }
+      - { label: "Latitude", name: "latitude", widget: "number", value_type: "float", required: false }
+      - { label: "Longitude", name: "longitude", widget: "number", value_type: "float", required: false }
+      - { label: "လူဦးရေ (Population)", name: "population", widget: "number", value_type: "int", default: 0, min: 0 }
+      - { label: "မိသားစုအရေအတွက် (Families)", name: "families", widget: "number", value_type: "int", default: 0, min: 0 }
+      - { label: "ကလေးဦးရေ (Children)", name: "children", widget: "number", value_type: "int", required: false }
+      - { label: "အမျိုးသမီးဦးရေ (Women)", name: "women", widget: "number", value_type: "int", required: false }
+      - { label: "Update ရက်စွဲ (Last Updated)", name: "date", widget: "datetime", format: "YYYY-MM-DD", required: true }
+      - label: "စခန်းအခြေအနေ (Camp Status)"
+        name: "status"
+        widget: "select"
+        default: "ACTIVE"
+        options:
+          - { label: "🟢 CALM - တည်ငြိမ်", value: "CALM" }
+          - { label: "🟡 WATCH - စောင့်ကြည့်", value: "WATCH" }
+          - { label: "🟠 ACTIVE - တက်ကြွ", value: "ACTIVE" }
+          - { label: "🔴 HOT - အန္တရာယ်", value: "HOT" }
+          - { label: "⚫ CLOSED - ပိတ်သိမ်း", value: "CLOSED" }
+      - label: "လိုအပ်ချက် (Needs)"
+        name: "needs"
+        widget: "select"
+        multiple: true
+        required: false
+        options:
+          - { label: "🍚 စားနပ်ရိက္ခာ", value: "food" }
+          - { label: "💊 ဆေးဝါး", value: "medicine" }
+          - { label: "🏠 အမိုးအကာ", value: "shelter" }
+          - { label: "💧 သောက်သုံးရေ", value: "water" }
+          - { label: "👕 အဝတ်အထည်", value: "clothing" }
+          - { label: "📚 ပညာရေး", value: "education" }
+      - { label: "မှတ်ချက် (Notes)", name: "body", widget: "markdown", required: false }
+      - { label: "ဓာတ်ပုံ (Photos)", name: "images", widget: "list", required: false, field: { label: "Image", name: "image", widget: "image" } }
+      - label: "သတင်းရင်းမြစ် (Sources)"
+        name: "sources"
+        widget: "list"
+        required: false
+        fields:
+          - { label: "ရင်းမြစ်အမည်", name: "name", widget: "string" }
+          - { label: "URL", name: "url", widget: "string", required: false }
